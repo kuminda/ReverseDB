@@ -1,0 +1,33 @@
+database:
+  host: your-oracle-host
+  port: 1521
+  service_name: your_service
+  # Set DB_PASSWORD env variable instead of putting the password here
+  username: your_username
+
+analysis:
+  schema: YOUR_SCHEMA        # Oracle schema/owner to analyse (uppercase)
+
+  # Chunked reading -------------------------------------------------------
+  batch_size: 10000          # Rows fetched per round-trip for all chunked queries
+
+  # Data sampling ---------------------------------------------------------
+  # Oracle SAMPLE clause percentage (0.01 – 100.0).
+  # For a 1-billion-row table, 0.01 % already gives ~100,000 rows.
+  data_sample_pct: 0.1
+
+  # Hard cap applied after SAMPLE to keep memory usage predictable.
+  max_sample_rows: 2000
+
+  # Classification thresholds ---------------------------------------------
+  # Tables whose NUM_ROWS (from ALL_TABLES statistics) is below this value
+  # are treated as reference-data candidates.
+  ref_data_max_rows: 10000
+
+  # Tables below this row-count threshold are treated as system-parameter
+  # candidates when they also match a naming/column pattern.
+  param_table_max_rows: 1000
+
+output:
+  report_file: reverse_engineered_report.md
+  log_level: INFO            # DEBUG | INFO | WARNING | ERROR
