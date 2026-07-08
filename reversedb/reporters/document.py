@@ -147,7 +147,7 @@ class DocumentBuilder:
 
         doc = ReportDocument(
             schema=self._schema,
-            generated_at=datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+            generated_at=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
             total_tables=len(self._tables),
             total_triggers=len(self._triggers),
             total_procedures=len(self._procedures),
