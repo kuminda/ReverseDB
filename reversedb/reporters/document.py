@@ -190,8 +190,9 @@ class DocumentBuilder:
 
     @staticmethod
     def _ai_note(clf: "ClassificationResult") -> str | None:
-        if clf.ai_override is not None:
-            return f"AI override: heuristic `{clf.category.value}` → AI `{clf.ai_override.value}`"
+        override = clf.ai_override
+        if override is not None:
+            return f"AI override: heuristic `{clf.category.value}` → AI `{override.value}`"
         return None
 
     def _build_txn(
