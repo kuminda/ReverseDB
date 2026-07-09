@@ -63,7 +63,7 @@ class CopilotReviewer(AIReviewer):
             "Allowed categories: Transaction, Reference Data, Master Data, System Parameter, Unknown.\n"
             "Return STRICT JSON only using this schema:\n"
             "{"
-            '"reviews":[{"table_name":"...", "confirmed":true|false, "override_category":"<allowed or null>"}]'
+            '"reviews":[{"table_name":"...", "confirmed":<boolean>, "override_category":"<allowed or null>"}]'
             "}\n"
             "Rules:\n"
             "- confirmed=true means keep heuristic category and override_category must be null.\n"
