@@ -124,8 +124,8 @@ class CopilotReviewer(AIReviewer):
             if lines and lines[-1].strip() == "```":
                 lines = lines[:-1]
             raw = "\n".join(lines).strip()
-            if raw.lower().startswith("json\n"):
-                raw = raw[5:].strip()
+            if raw.lower().startswith("json"):
+                raw = raw[4:].lstrip(":").strip()
         return json.loads(raw)
 
     def _parse_response(self, raw_text: str) -> dict[str, dict[str, Any]]:

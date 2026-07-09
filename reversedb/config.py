@@ -38,7 +38,7 @@ class AIConfig:
     provider: str = "copilot"
     model: str = ""
     enabled: bool = False
-    # 0 means "review all". Positive values only review tables whose best
+    # 0 means "review all". Positive values only review tables whose best/max
     # heuristic score is <= threshold (higher-scoring tables are treated as
     # confident enough to skip AI review).
     confidence_threshold: int = 0
