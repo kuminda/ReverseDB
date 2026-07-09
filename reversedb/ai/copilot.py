@@ -89,12 +89,12 @@ class CopilotReviewer(AIReviewer):
             endpoint,
             data=body,
             headers={
-                "Authorization": f"******",
                 "Content-Type": "application/json",
                 "Accept": "application/json",
             },
             method="POST",
         )
+        req.add_header("Authorization", "Bearer " + token)
         try:
             with urllib.request.urlopen(req, timeout=60) as resp:
                 response_body = resp.read().decode("utf-8")

@@ -192,8 +192,6 @@ class DocumentBuilder:
     def _ai_note(clf: "ClassificationResult") -> str | None:
         if clf.ai_override is not None:
             return f"AI override: heuristic `{clf.category.value}` → AI `{clf.ai_override.value}`"
-        if clf.ai_confirmed:
-            return "AI confirmed heuristic classification."
         return None
 
     def _build_txn(

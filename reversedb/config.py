@@ -35,7 +35,7 @@ class OutputConfig:
 
 @dataclass
 class AIConfig:
-    provider: str = "gemini"
+    provider: str = "copilot"
     model: str = ""
     enabled: bool = False
     # 0 means "review all". Positive values only review tables whose best
@@ -91,7 +91,7 @@ class Config:
                 log_level=output_raw.get("log_level", "INFO"),
             ),
             ai=AIConfig(
-                provider=str(ai_raw.get("provider", "gemini")).strip().lower(),
+                provider=str(ai_raw.get("provider", "copilot")).strip().lower(),
                 model=str(ai_raw.get("model", "")).strip(),
                 enabled=bool(ai_raw.get("enabled", False)),
                 confidence_threshold=int(ai_raw.get("confidence_threshold", 0)),
