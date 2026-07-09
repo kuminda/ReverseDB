@@ -31,3 +31,9 @@ analysis:
 output:
   report_file: reverse_engineered_report.md
   log_level: INFO            # DEBUG | INFO | WARNING | ERROR
+
+ai:
+  enabled: false             # true to enable AI post-review of table classifications
+  provider: copilot          # pluggable provider key (currently: copilot)
+  model: gpt-4.1             # Copilot model name
+  confidence_threshold: 0    # 0=review all, >0 reviews only low-confidence tables

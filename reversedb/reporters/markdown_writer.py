@@ -105,6 +105,10 @@ class MarkdownWriter:
         for entry in sorted(doc.transactions, key=lambda e: e.table_name):
             lines.append(self._h(3, f"`{entry.table_name}`"))
             lines.append(f"- **Estimated rows:** {_fmt_rows(entry.num_rows)}\n")
+            if entry.ai_confirmed:
+                lines.append("- **AI review:** ✅ Confirmed\n")
+            elif entry.ai_note:
+                lines.append(f"- **AI review:** {entry.ai_note}\n")
 
             lines.append("- **Columns:**\n")
             for col in entry.columns:
@@ -126,6 +130,10 @@ class MarkdownWriter:
         for entry in sorted(doc.references, key=lambda e: e.table_name):
             lines.append(self._h(3, f"`{entry.table_name}`"))
             lines.append(f"- **Estimated rows:** {_fmt_rows(entry.num_rows)}\n")
+            if entry.ai_confirmed:
+                lines.append("- **AI review:** ✅ Confirmed\n")
+            elif entry.ai_note:
+                lines.append(f"- **AI review:** {entry.ai_note}\n")
             lines.append(f"- **Update ownership:** {entry.owner}\n")
             lines.append(f"- **Consumed by (FK):**\n{_bullet_list(entry.fk_consumers, 1)}")
             lines.append("- **Columns:**\n")
@@ -141,6 +149,10 @@ class MarkdownWriter:
         for entry in sorted(doc.masters, key=lambda e: e.table_name):
             lines.append(self._h(3, f"`{entry.table_name}`"))
             lines.append(f"- **Estimated rows:** {_fmt_rows(entry.num_rows)}\n")
+            if entry.ai_confirmed:
+                lines.append("- **AI review:** ✅ Confirmed\n")
+            elif entry.ai_note:
+                lines.append(f"- **AI review:** {entry.ai_note}\n")
             lines.append(f"- **Primary key:** {', '.join(f'`{c}`' for c in entry.primary_key) or _NA}\n")
             lines.append(f"- **Referenced by (FK):**\n{_bullet_list(entry.fk_consumers, 1)}")
             lines.append(f"- **Procedures / packages:**\n{_bullet_list(entry.procedures, 1)}")
@@ -158,6 +170,10 @@ class MarkdownWriter:
         for entry in sorted(doc.system_params, key=lambda e: e.table_name):
             lines.append(self._h(3, f"`{entry.table_name}`"))
             lines.append(f"- **Estimated rows:** {_fmt_rows(entry.num_rows)}\n")
+            if entry.ai_confirmed:
+                lines.append("- **AI review:** ✅ Confirmed\n")
+            elif entry.ai_note:
+                lines.append(f"- **AI review:** {entry.ai_note}\n")
             lines.append(f"- **Key columns:** {', '.join(f'`{c}`' for c in entry.key_columns) or _NA}\n")
             lines.append(f"- **Value columns:** {', '.join(f'`{c}`' for c in entry.value_columns) or _NA}\n")
             lines.append(f"- **Procedures / packages:**\n{_bullet_list(entry.procedures, 1)}")

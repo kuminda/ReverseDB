@@ -49,6 +49,8 @@ class ClassificationResult:
     table_name: str
     category: TableCategory
     scores: dict[str, int]
+    ai_confirmed: bool = False
+    ai_override: TableCategory | None = None
 
 
 class TableClassifier:

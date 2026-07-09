@@ -38,6 +38,8 @@ class ColumnEntry:
 class TransactionEntry:
     table_name: str
     num_rows: int | None
+    ai_confirmed: bool = False
+    ai_note: str | None = None
     columns: list[ColumnEntry] = field(default_factory=list)
     status_columns: list[str] = field(default_factory=list)
     date_columns: list[str] = field(default_factory=list)
@@ -50,6 +52,8 @@ class TransactionEntry:
 class ReferenceEntry:
     table_name: str
     num_rows: int | None
+    ai_confirmed: bool = False
+    ai_note: str | None = None
     columns: list[ColumnEntry] = field(default_factory=list)
     fk_consumers: list[str] = field(default_factory=list)     # tables that FK into this one
     owner: str = "Admin / System"
@@ -59,6 +63,8 @@ class ReferenceEntry:
 class MasterEntry:
     table_name: str
     num_rows: int | None
+    ai_confirmed: bool = False
+    ai_note: str | None = None
     primary_key: list[str] = field(default_factory=list)
     columns: list[ColumnEntry] = field(default_factory=list)
     fk_consumers: list[str] = field(default_factory=list)
@@ -69,6 +75,8 @@ class MasterEntry:
 class SystemParamEntry:
     table_name: str
     num_rows: int | None
+    ai_confirmed: bool = False
+    ai_note: str | None = None
     key_columns: list[str] = field(default_factory=list)
     value_columns: list[str] = field(default_factory=list)
     procedures: list[str] = field(default_factory=list)
@@ -158,14 +166,16 @@ class DocumentBuilder:
             if tbl is None:
                 continue
 
-            if clf.category == TableCategory.TRANSACTION:
-                doc.transactions.append(self._build_txn(tbl))
-            elif clf.category == TableCategory.REFERENCE:
-                doc.references.append(self._build_ref(tbl))
-            elif clf.category == TableCategory.MASTER:
-                doc.masters.append(self._build_master(tbl))
-            elif clf.category == TableCategory.SYSTEM_PARAM:
-                doc.system_params.append(self._build_param(tbl))
+            final_category = clf.ai_override or clf.category
+            ai_note = self._ai_note(clf)
+            if final_category == TableCategory.TRANSACTION:
+                doc.transactions.append(self._build_txn(tbl, clf.ai_confirmed, ai_note))
+            elif final_category == TableCategory.REFERENCE:
+                doc.references.append(self._build_ref(tbl, clf.ai_confirmed, ai_note))
+            elif final_category == TableCategory.MASTER:
+                doc.masters.append(self._build_master(tbl, clf.ai_confirmed, ai_note))
+            elif final_category == TableCategory.SYSTEM_PARAM:
+                doc.system_params.append(self._build_param(tbl, clf.ai_confirmed, ai_note))
             else:
                 doc.unknown_tables.append(tbl.name)
 
@@ -178,7 +188,20 @@ class DocumentBuilder:
     def _col_entries(self, tbl: "TableInfo") -> list[ColumnEntry]:
         return [ColumnEntry(c.name, c.data_type, c.nullable) for c in tbl.columns]
 
-    def _build_txn(self, tbl: "TableInfo") -> TransactionEntry:
+    @staticmethod
+    def _ai_note(clf: "ClassificationResult") -> str | None:
+        if clf.ai_override is not None:
+            return f"AI override: heuristic `{clf.category.value}` → AI `{clf.ai_override.value}`"
+        if clf.ai_confirmed:
+            return "AI confirmed heuristic classification."
+        return None
+
+    def _build_txn(
+        self,
+        tbl: "TableInfo",
+        ai_confirmed: bool,
+        ai_note: str | None,
+    ) -> TransactionEntry:
         status_cols = [
             c.name for c in tbl.columns
             if any(kw in c.name.upper() for kw in ("STATUS", "STATE", "APPROVAL"))
@@ -195,6 +218,8 @@ class DocumentBuilder:
         return TransactionEntry(
             table_name=tbl.name,
             num_rows=tbl.num_rows,
+            ai_confirmed=ai_confirmed,
+            ai_note=ai_note,
             columns=self._col_entries(tbl),
             status_columns=status_cols,
             date_columns=date_cols,
@@ -203,15 +228,27 @@ class DocumentBuilder:
             procedures=self._table_proc_map.get(tbl.name, []),
         )
 
-    def _build_ref(self, tbl: "TableInfo") -> ReferenceEntry:
+    def _build_ref(
+        self,
+        tbl: "TableInfo",
+        ai_confirmed: bool,
+        ai_note: str | None,
+    ) -> ReferenceEntry:
         return ReferenceEntry(
             table_name=tbl.name,
             num_rows=tbl.num_rows,
+            ai_confirmed=ai_confirmed,
+            ai_note=ai_note,
             columns=self._col_entries(tbl),
             fk_consumers=list(dict.fromkeys(self._fk_consumers.get(tbl.name, []))),
         )
 
-    def _build_master(self, tbl: "TableInfo") -> MasterEntry:
+    def _build_master(
+        self,
+        tbl: "TableInfo",
+        ai_confirmed: bool,
+        ai_note: str | None,
+    ) -> MasterEntry:
         pk = next(
             (con.columns for con in tbl.constraints if con.constraint_type == "P"),
             [],
@@ -219,13 +256,20 @@ class DocumentBuilder:
         return MasterEntry(
             table_name=tbl.name,
             num_rows=tbl.num_rows,
+            ai_confirmed=ai_confirmed,
+            ai_note=ai_note,
             primary_key=pk,
             columns=self._col_entries(tbl),
             fk_consumers=list(dict.fromkeys(self._fk_consumers.get(tbl.name, []))),
             procedures=self._table_proc_map.get(tbl.name, []),
         )
 
-    def _build_param(self, tbl: "TableInfo") -> SystemParamEntry:
+    def _build_param(
+        self,
+        tbl: "TableInfo",
+        ai_confirmed: bool,
+        ai_note: str | None,
+    ) -> SystemParamEntry:
         key_hints = {"PARAM_NAME", "CONFIG_KEY", "SETTING_NAME", "PROP_NAME", "NAME", "KEY"}
         val_hints = {"PARAM_VALUE", "CONFIG_VALUE", "SETTING_VALUE", "PROP_VALUE", "VALUE", "DATA"}
         key_cols = [c.name for c in tbl.columns if c.name.upper() in key_hints]
@@ -233,6 +277,8 @@ class DocumentBuilder:
         return SystemParamEntry(
             table_name=tbl.name,
             num_rows=tbl.num_rows,
+            ai_confirmed=ai_confirmed,
+            ai_note=ai_note,
             key_columns=key_cols,
             value_columns=val_cols,
             procedures=self._table_proc_map.get(tbl.name, []),

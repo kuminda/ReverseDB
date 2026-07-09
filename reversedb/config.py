@@ -34,10 +34,22 @@ class OutputConfig:
 
 
 @dataclass
+class AIConfig:
+    provider: str = "gemini"
+    model: str = ""
+    enabled: bool = False
+    # 0 means "review all". Positive values only review tables whose best
+    # heuristic score is <= threshold (higher-scoring tables are treated as
+    # confident enough to skip AI review).
+    confidence_threshold: int = 0
+
+
+@dataclass
 class Config:
     database: DatabaseConfig
     analysis: AnalysisConfig
     output: OutputConfig
+    ai: AIConfig
 
     @classmethod
     def from_file(cls, path: str) -> "Config":
@@ -54,6 +66,7 @@ class Config:
         db_raw = raw["database"]
         analysis_raw = raw.get("analysis", {})
         output_raw = raw.get("output", {})
+        ai_raw = raw.get("ai", {})
 
         db_passwd = os.environ.get("DB_PASSWORD") or db_raw.get("password", "")
 
@@ -76,5 +89,11 @@ class Config:
             output=OutputConfig(
                 report_file=output_raw.get("report_file", "reverse_engineered_report.md"),
                 log_level=output_raw.get("log_level", "INFO"),
+            ),
+            ai=AIConfig(
+                provider=str(ai_raw.get("provider", "gemini")).strip().lower(),
+                model=str(ai_raw.get("model", "")).strip(),
+                enabled=bool(ai_raw.get("enabled", False)),
+                confidence_threshold=int(ai_raw.get("confidence_threshold", 0)),
             ),
         )

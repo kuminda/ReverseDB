@@ -25,6 +25,7 @@ import logging
 import sys
 from pathlib import Path
 
+from reversedb.ai.factory import get_reviewer
 from reversedb.classifiers.table_classifier import TableClassifier
 from reversedb.config import Config
 from reversedb.db.chunked_reader import ChunkedReader
@@ -96,6 +97,17 @@ def run(config_path: str) -> None:
         logger.info("=== Step 4: Table classification ===")
         classifier = TableClassifier(cfg.analysis)
         classifications = classifier.classify(tables)
+
+        # ------------------------------------------------------------------
+        # 4b. AI confirmation (optional)
+        # ------------------------------------------------------------------
+        if cfg.ai.enabled:
+            logger.info("=== Step 4b: AI classification review (%s) ===", cfg.ai.provider)
+            try:
+                reviewer = get_reviewer(cfg.ai)
+                classifications = reviewer.review(classifications)
+            except Exception as exc:
+                logger.warning("AI review failed; keeping heuristic results. reason=%s", exc)
 
         # ------------------------------------------------------------------
         # 5. Build report document
