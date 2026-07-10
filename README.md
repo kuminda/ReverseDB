@@ -103,6 +103,40 @@ For each parameter/config table:
 - Procedure/trigger dependency graph
 - Transaction sequence diagrams
 
+## Running the Tool
+
+### Streamlit Demo (no Oracle connection required)
+
+The fastest way to explore ReverseDB is the built-in Streamlit interface.
+It runs the full pipeline against a sample `LEGACY_ERP` schema entirely in-memory.
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Then open <http://localhost:8501> in your browser.  Use the sidebar to adjust
+classification thresholds, click **▶ Run Pipeline**, and download the generated
+Markdown report.
+
+### CLI (Oracle connection required)
+
+```bash
+cp config.yaml.example config.yaml   # fill in your DB credentials
+export DB_PASSWORD=your_password
+python main.py --config config.yaml
+```
+
+### Jupyter Notebook
+
+Open `ReverseDB_Demo.ipynb` in Jupyter or VS Code to step through the pipeline
+cell by cell with full inline documentation.
+
+```bash
+pip install notebook
+jupyter notebook ReverseDB_Demo.ipynb
+```
+
 ## Minimum Deliverables Checklist
 
 - [ ] Full object inventory and dependency map
