@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.eggs/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Config with real credentials
+config.yaml
+
+# Generated report (per-run artifact)
+*.md_report
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
