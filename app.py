@@ -714,7 +714,7 @@ def _build_table_proc_map(procedures):
 # Streamlit UI
 # ─────────────────────────────────────────────────────────────────────────────
 
-_CATEGORY_COLOURS = {
+_CATEGORY_COLORS = {
     TableCategory.TRANSACTION.value:  "🔴",
     TableCategory.REFERENCE.value:    "🟡",
     TableCategory.MASTER.value:       "🟢",
@@ -813,7 +813,7 @@ st.subheader("🗂 Classification Results")
 
 table_data = []
 for r in classifications:
-    icon = _CATEGORY_COLOURS.get(r.category.value, "⚪")
+    icon = _CATEGORY_COLORS.get(r.category.value, "⚪")
     best_score = max(r.scores.values())
     table_data.append({
         "Table": r.table_name,
